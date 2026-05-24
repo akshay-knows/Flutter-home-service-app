@@ -1,25 +1,21 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:day35/main.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('App opens on start page', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Online Thekedaar opens service selection', (tester) async {
+    SharedPreferences.setMockInitialValues({});
 
-    expect(find.textContaining('Easy, reliable way'), findsOneWidget);
-    expect(find.text('Get Started'), findsOneWidget);
+    await tester.pumpWidget(const OnlineThekedaarApp());
 
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pumpWidget(const SizedBox());
+    expect(find.text('Online Thekedaar'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
     await tester.pump();
+    await tester.pump();
+
+    expect(find.text('🔧 Plumber'), findsOneWidget);
+    expect(find.text('💡 Electrician'), findsOneWidget);
+    expect(find.text('Book trusted local service workers'), findsOneWidget);
   });
 }
