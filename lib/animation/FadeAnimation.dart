@@ -24,7 +24,7 @@
 //       builderWithChild: (context, child, animation) => Opacity(
 //         opacity: (animation as Map)["opacity"],
 //         child: Transform.translate(
-//           offset: Offset(0, animation["translateY"]), 
+//           offset: Offset(0, animation["translateY"]),
 //           child: child
 //         ),
 //       ),

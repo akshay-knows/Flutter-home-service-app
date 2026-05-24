@@ -1,9 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:day35/models/service.dart';
+import 'package:day35/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({ Key? key }) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -11,129 +12,194 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Service> services = [
-    Service('Cleaning', 'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
-    Service('Plumber', 'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-plumber-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
-    Service('Electrician', 'https://img.icons8.com/external-wanicon-flat-wanicon/2x/external-multimeter-car-service-wanicon-flat-wanicon.png'),
-    Service('Painter', 'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-painter-male-occupation-avatar-itim2101-flat-itim2101.png'),
+    Service('Cleaning',
+        'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
+    Service('Plumber',
+        'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-plumber-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
+    Service('Electrician',
+        'https://img.icons8.com/external-wanicon-flat-wanicon/2x/external-multimeter-car-service-wanicon-flat-wanicon.png'),
+    Service('Painter',
+        'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-painter-male-occupation-avatar-itim2101-flat-itim2101.png'),
     Service('Carpenter', 'https://img.icons8.com/fluency/2x/drill.png'),
-    Service('Gardener', 'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-gardener-male-occupation-avatar-itim2101-flat-itim2101.png'),
+    Service('Gardener',
+        'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-gardener-male-occupation-avatar-itim2101-flat-itim2101.png'),
   ];
 
   List<dynamic> workers = [
-    ['Alfredo Schafer', 'Plumber', 'https://images.unsplash.com/photo-1506803682981-6e718a9dd3ee?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=c3a31eeb7efb4d533647e3cad1de9257', 4.8],
-    ['Michelle Baldwin', 'Cleaner', 'https://uifaces.co/our-content/donated/oLkb60i_.jpg', 4.6],
-    ['Brenon Kalu', 'Driver', 'https://uifaces.co/our-content/donated/VUMBKh1U.jpg', 4.4]
+    [
+      'Alfredo Schafer',
+      'Plumber',
+      'https://images.unsplash.com/photo-1506803682981-6e718a9dd3ee?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=c3a31eeb7efb4d533647e3cad1de9257',
+      4.8
+    ],
+    [
+      'Michelle Baldwin',
+      'Cleaner',
+      'https://uifaces.co/our-content/donated/oLkb60i_.jpg',
+      4.6
+    ],
+    [
+      'Brenon Kalu',
+      'Driver',
+      'https://uifaces.co/our-content/donated/VUMBKh1U.jpg',
+      4.4
+    ]
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: Text('Dashboard', style: TextStyle(color: Colors.black),),
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {}, 
-            icon: Icon(Icons.notifications_none, color: Colors.grey.shade700, size: 30,),
-          )
-        ],
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, '/login');
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage('https://uifaces.co/our-content/donated/NY9hnAbp.jpg'),
-            ),
-          )
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          title: Text(
+            'Dashboard',
+            style: TextStyle(color: Colors.black),
+          ),
+          elevation: 0,
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.notifications_none,
+                color: Colors.grey.shade700,
+                size: 30,
+              ),
+            )
+          ],
+          leading: GestureDetector(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ClipOval(
+                  child: SafeNetworkImage(
+                    'https://uifaces.co/our-content/donated/NY9hnAbp.jpg',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            FadeInUp(child: Padding(
-              padding: EdgeInsets.only(left: 20.0, top: 10.0, right: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Recent', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  TextButton(
-                    onPressed: () {}, 
-                    child: Text('View all',)
-                  )
+        body: SingleChildScrollView(
+            child: Column(children: [
+          FadeInUp(
+              child: Padding(
+            padding: EdgeInsets.only(left: 20.0, top: 10.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recent',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'View all',
+                    ))
+              ],
+            ),
+          )),
+          FadeInUp(
+              child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Container(
+              padding: EdgeInsets.all(20.0),
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade200,
+                    offset: Offset(0, 4),
+                    blurRadius: 10.0,
+                  ),
                 ],
               ),
-            )),
-            FadeInUp(child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: Container(
-                padding: EdgeInsets.all(20.0),
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade200,
-                      offset: Offset(0, 4),
-                      blurRadius: 10.0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
                           borderRadius: BorderRadius.circular(15.0),
-                          child: Image.network('https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb', width: 70,)
-                        ),
-                        SizedBox(width: 15,),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Isabel Kirkland", style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
-                            SizedBox(height: 5,),
-                            Text("Cleaner", style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 18),),
-                          ],
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 20,),
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(15.0)
+                          child: SafeNetworkImage(
+                            'https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb',
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.cover,
+                          )),
+                      SizedBox(
+                        width: 15,
                       ),
-                      child: Center(child: Text('View Profile', style: TextStyle(color: Colors.white, fontSize: 18),)),
-                    )
-                  ],
-                ),
-              ),
-            )),
-            SizedBox(height: 20,),
-            FadeInUp(child: Padding(
-              padding: EdgeInsets.only(left: 20.0, right: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Categories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  TextButton(
-                    onPressed: () {}, 
-                    child: Text('View all',)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Isabel Kirkland",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Cleaner",
+                            style: TextStyle(
+                                color: Colors.black.withValues(alpha: 0.7),
+                                fontSize: 18),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(15.0)),
+                    child: Center(
+                        child: Text(
+                      'View Profile',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    )),
                   )
                 ],
               ),
-            )),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              height: 300,
-              child: GridView.builder(
+            ),
+          )),
+          SizedBox(
+            height: 20,
+          ),
+          FadeInUp(
+              child: Padding(
+            padding: EdgeInsets.only(left: 20.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Categories',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'View all',
+                    ))
+              ],
+            ),
+          )),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            height: 300,
+            child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   childAspectRatio: 1.0,
@@ -144,43 +210,52 @@ class _HomePageState extends State<HomePage> {
                 itemCount: services.length,
                 itemBuilder: (BuildContext context, int index) {
                   return FadeInUp(
-                    delay: Duration(milliseconds: 500 * index),
-                    child: serviceContainer(services[index].imageURL, services[index].name, index));
-                }
-              ),
+                      delay: Duration(milliseconds: 500 * index),
+                      child: serviceContainer(services[index].imageURL,
+                          services[index].name, index));
+                }),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          FadeInUp(
+              child: Padding(
+            padding: EdgeInsets.only(left: 20.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Top Rated',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'View all',
+                    ))
+              ],
             ),
-            SizedBox(height: 20,),
-            FadeInUp(child: Padding(
-              padding: EdgeInsets.only(left: 20.0, right: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Top Rated', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  TextButton(
-                    onPressed: () {}, 
-                    child: Text('View all',)
-                  )
-                ],
-              ),
-            )),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              height: 120,
-              child: ListView.builder(
+          )),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            height: 120,
+            child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: workers.length,
                 itemBuilder: (BuildContext context, int index) {
                   return FadeInUp(
-                    delay: Duration(milliseconds: 500 * index),
-                    child: workerContainer(workers[index][0], workers[index][1], workers[index][2], workers[index][3]));
-                }
-              ),
-            ),
-            SizedBox(height: 150,),
-          ]
-        )
-      )
-    );
+                      delay: Duration(milliseconds: 500 * index),
+                      child: workerContainer(
+                          workers[index][0],
+                          workers[index][1],
+                          workers[index][2],
+                          workers[index][3]));
+                }),
+          ),
+          SizedBox(
+            height: 150,
+          ),
+        ])));
   }
 
   serviceContainer(String image, String name, int index) {
@@ -191,19 +266,23 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: Colors.grey.shade100,
           border: Border.all(
-            color: Colors.blue.withOpacity(0),
+            color: Colors.blue.withValues(alpha: 0),
             width: 2.0,
           ),
           borderRadius: BorderRadius.circular(20.0),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.network(image, height: 45),
-            SizedBox(height: 20,),
-            Text(name, style: TextStyle(fontSize: 15),)
-          ]
-        ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SafeNetworkImage(image, height: 45),
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                name,
+                style: TextStyle(fontSize: 15),
+              )
+            ]),
       ),
     );
   }
@@ -224,34 +303,58 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(20.0),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: Image.network(image)
-              ),
-              SizedBox(width: 20,),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-                  Text(job, style: TextStyle(fontSize: 15),)
-                ],
-              ),
-              Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(rating.toString(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-                  Icon(Icons.star, color: Colors.orange, size: 20,)
-                ],
-              )
-            ]
-          ),
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(15.0),
+                    child: SafeNetworkImage(
+                      image,
+                      width: 55,
+                      height: 55,
+                      fit: BoxFit.cover,
+                    )),
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      job,
+                      style: TextStyle(fontSize: 15),
+                    )
+                  ],
+                ),
+                Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      rating.toString(),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Icon(
+                      Icons.star,
+                      color: Colors.orange,
+                      size: 20,
+                    )
+                  ],
+                )
+              ]),
         ),
       ),
     );
