@@ -10,7 +10,7 @@ class ServiceRepository {
     '💡 Electrician',
     '🪚 Carpenter',
     '🎨 Painter',
-    '🧱 Mistri',
+    '🧱 Mistri / General Repairman',
     '🚚 Shifting / Movers',
     '❄️ AC Repair',
   ];
