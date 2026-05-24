@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:day35/pages/date_time.dart';
-import 'package:day35/widgets/safe_network_image.dart';
+import 'package:online_thekedaar/pages/date_time.dart';
+import 'package:online_thekedaar/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 
 class CleaningPage extends StatefulWidget {

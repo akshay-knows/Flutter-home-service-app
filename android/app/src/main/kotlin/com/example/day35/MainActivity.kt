@@ -1,4 +1,4 @@
-package com.example.day35
+package com.online_thekedaar.app
 
 import android.content.ActivityNotFoundException
 import android.content.Intent

@@ -1,4 +1,4 @@
-import 'package:day35/services/app_settings_repository.dart';
+import 'package:online_thekedaar/services/app_settings_repository.dart';
 import 'package:flutter/services.dart';
 
 class WhatsappService {

@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:day35/models/service.dart';
-import 'package:day35/widgets/safe_network_image.dart';
+import 'package:online_thekedaar/models/service.dart';
+import 'package:online_thekedaar/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {

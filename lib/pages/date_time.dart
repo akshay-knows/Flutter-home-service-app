@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:day35/pages/home.dart';
-import 'package:day35/widgets/safe_network_image.dart';
+import 'package:online_thekedaar/pages/home.dart';
+import 'package:online_thekedaar/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

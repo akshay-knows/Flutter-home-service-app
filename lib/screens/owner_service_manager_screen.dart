@@ -1,8 +1,9 @@
-import 'package:day35/config/app_config.dart';
-import 'package:day35/services/app_settings_repository.dart';
-import 'package:day35/services/service_repository.dart';
+import 'package:online_thekedaar/services/sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class OwnerServiceManagerScreen extends StatefulWidget {
   const OwnerServiceManagerScreen({super.key});
@@ -13,19 +14,12 @@ class OwnerServiceManagerScreen extends StatefulWidget {
 }
 
 class _OwnerServiceManagerScreenState extends State<OwnerServiceManagerScreen> {
-  final ServiceRepository _repository = ServiceRepository();
-  final AppSettingsRepository _settingsRepository = AppSettingsRepository();
+  final SyncService _syncService = SyncService();
   final TextEditingController _serviceController = TextEditingController();
   final TextEditingController _whatsappController = TextEditingController();
-
-  List<String> _services = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadServices();
-  }
+  final ImagePicker _picker = ImagePicker();
+  
+  File? _selectedIcon;
 
   @override
   void dispose() {
@@ -34,204 +28,135 @@ class _OwnerServiceManagerScreenState extends State<OwnerServiceManagerScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() => _selectedIcon = File(image.path));
+      _showMessage('Icon selected (Local preview). Setup Firebase Storage for full sync!');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
-      appBar: AppBar(
-        title: const Text('Owner Service Manager'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF101820),
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(20),
+      appBar: AppBar(title: const Text('Admin Console')),
+      body: StreamBuilder<String>(
+        stream: _syncService.getWhatsappNumber(),
+        builder: (context, whatsappSnapshot) {
+          if (whatsappSnapshot.hasData && _whatsappController.text.isEmpty) {
+            _whatsappController.text = whatsappSnapshot.data!;
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              FadeInDown(
+                child: _buildSectionHeader('Branding', 'Customize your app look.'),
+              ),
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  const Text(
-                    'WhatsApp receiving number',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Bookings and status requests are routed to this number. Use country code without +.',
-                    style: TextStyle(color: Colors.grey.shade700, height: 1.35),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _whatsappController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: 'Admin WhatsApp Number',
-                      hintText: '918878976452',
-                      filled: true,
-                      fillColor: Colors.white,
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(16),
+                        image: _selectedIcon != null ? DecorationImage(image: FileImage(_selectedIcon!), fit: BoxFit.cover) : null,
+                      ),
+                      child: _selectedIcon == null ? const Icon(Icons.add_a_photo_outlined) : null,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _saveWhatsappNumber,
-                          icon: const Icon(Icons.save_outlined),
-                          label: const Text('Save number'),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      IconButton.outlined(
-                        tooltip: 'Reset number',
-                        onPressed: _resetWhatsappNumber,
-                        icon: const Icon(Icons.restart_alt),
-                      ),
-                    ],
+                  const SizedBox(width: 16),
+                  const Expanded(child: Text('Tap to change App Icon or Theme Image')),
+                ],
+              ),
+              const SizedBox(height: 32),
+              _buildSectionHeader('WhatsApp Number', 'Syncs to all customers instantly.'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _whatsappController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: 'Business Number',
+                  prefixIcon: const Icon(Icons.phone_android_rounded),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.cloud_upload_rounded, color: Colors.blue),
+                    onPressed: () => _syncService.updateWhatsapp(_whatsappController.text),
                   ),
-                  const SizedBox(height: 28),
-                  const Text(
-                    'Customer-facing services',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Add services here and the customer home screen will use this list.',
-                    style: TextStyle(color: Colors.grey.shade700, height: 1.35),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _serviceController,
-                          textCapitalization: TextCapitalization.words,
-                          decoration: const InputDecoration(
-                            labelText: 'New service name',
-                            hintText: 'Example: 🧹 Deep Cleaning',
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                          onSubmitted: (_) => _addService(),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        height: 56,
-                        child: FilledButton(
-                          onPressed: _addService,
-                          child: const Icon(Icons.add),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (_services.isEmpty)
-                    const Center(child: Text('No services added yet.')),
-                  for (final service in _services)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          service,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        trailing: IconButton(
-                          tooltip: 'Delete service',
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => _deleteService(service),
-                        ),
-                      ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              _buildSectionHeader('Manage Services', 'Add services in real-time.'),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _serviceController,
+                      decoration: const InputDecoration(labelText: 'New Service', hintText: '🧹 Cleaning'),
+                      onSubmitted: (_) => _addService(),
                     ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: _resetServices,
-                    icon: const Icon(Icons.restart_alt),
-                    label: const Text('Reset default services'),
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton.filled(
+                    onPressed: _addService,
+                    icon: const Icon(Icons.add_rounded),
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+              StreamBuilder<List<String>>(
+                stream: _syncService.getServices(),
+                builder: (context, snapshot) {
+                  final services = snapshot.data ?? [];
+                  return Column(
+                    children: [
+                      for (var service in services)
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            title: Text(service),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline, color: Colors.red),
+                              onPressed: () => _syncService.deleteService(service),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Future<void> _loadServices() async {
-    final results = await Future.wait([
-      _repository.loadServices(),
-      _settingsRepository.loadWhatsappNumber(),
-    ]);
-    if (!mounted) return;
-    setState(() {
-      _services = results[0] as List<String>;
-      _whatsappController.text = results[1] as String;
-      _loading = false;
-    });
+  Widget _buildSectionHeader(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+      ],
+    );
   }
 
   Future<void> _addService() async {
-    final service = _serviceController.text.trim();
-    if (service.isEmpty) return;
-    if (_services.contains(service)) {
-      _showMessage('This service already exists.');
-      return;
-    }
-
-    final updatedServices = [..._services, service];
-    await _repository.saveServices(updatedServices);
-    if (!mounted) return;
-    setState(() {
-      _services = updatedServices;
+    final name = _serviceController.text.trim();
+    if (name.isNotEmpty) {
+      await _syncService.addService(name);
       _serviceController.clear();
-    });
-    _showMessage('Service added.');
-  }
-
-  Future<void> _deleteService(String service) async {
-    final updatedServices = _services.where((item) => item != service).toList();
-    await _repository.saveServices(updatedServices);
-    if (!mounted) return;
-    setState(() => _services = updatedServices);
-    _showMessage('Service removed.');
-  }
-
-  Future<void> _resetServices() async {
-    await _repository.resetServices();
-    await _loadServices();
-    _showMessage('Default services restored.');
-  }
-
-  Future<void> _saveWhatsappNumber() async {
-    final cleanNumber =
-        _whatsappController.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (cleanNumber.length < 10) {
-      _showMessage('Enter a valid WhatsApp number with country code.');
-      return;
+      _showMessage('Service Added to Cloud');
     }
-
-    await _settingsRepository.saveWhatsappNumber(cleanNumber);
-    if (!mounted) return;
-    setState(() => _whatsappController.text = cleanNumber);
-    _showMessage('WhatsApp number saved.');
   }
 
-  Future<void> _resetWhatsappNumber() async {
-    await _settingsRepository.resetWhatsappNumber();
-    if (!mounted) return;
-    setState(() {
-      _whatsappController.text = AppConfig.defaultWhatsappBusinessNumber;
-    });
-    _showMessage('WhatsApp number reset to app default.');
-  }
-
-  void _showMessage(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
   }
 }

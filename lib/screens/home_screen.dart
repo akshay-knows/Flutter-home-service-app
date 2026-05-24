@@ -1,178 +1,214 @@
-import 'package:day35/config/app_config.dart';
-import 'package:day35/screens/booking_form_screen.dart';
-import 'package:day35/screens/owner_service_manager_screen.dart';
-import 'package:day35/screens/status_update_screen.dart';
-import 'package:day35/services/service_repository.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:online_thekedaar/config/app_config.dart';
+import 'package:online_thekedaar/screens/booking_form_screen.dart';
+import 'package:online_thekedaar/screens/profile_screen.dart';
+import 'package:online_thekedaar/screens/status_update_screen.dart';
+import 'package:online_thekedaar/services/sync_service.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool isAdmin;
+  const HomeScreen({super.key, this.isAdmin = false});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ServiceRepository _repository = ServiceRepository();
-
-  List<String> _services = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadServices();
-  }
+  final SyncService _syncService = SyncService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Hero(
+            tag: 'app_logo',
+            child: Image.asset(AppConfig.logoAssetPath,
+                errorBuilder: (_, __, ___) => const Icon(Icons.handyman)),
+          ),
+        ),
         title: const Text(AppConfig.appName),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF101820),
-        elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Owner services',
-            icon: const Icon(Icons.admin_panel_settings_outlined),
-            onPressed: _openOwnerManager,
-          ),
-          IconButton(
-            tooltip: 'Status update',
-            icon: const Icon(Icons.manage_search),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const StatusUpdateScreen()),
-              );
-            },
+            tooltip: 'My Profile',
+            icon: const Icon(Icons.person_outline_rounded),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
           ),
         ],
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _loadServices,
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              const Text(
-                'Book trusted local service workers',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF101820),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${AppConfig.tagline}. Choose a service and send your booking directly to Online Thekedaar on WhatsApp.',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey.shade700,
-                  height: 1.35,
-                ),
-              ),
-              const SizedBox(height: 24),
-              if (_loading)
-                const Center(child: CircularProgressIndicator())
-              else if (_services.isEmpty)
-                const Center(child: Text('No services available right now.'))
-              else
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _services.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 14,
-                    childAspectRatio: 1.25,
+        child: StreamBuilder<List<String>>(
+          stream: _syncService.getServices(),
+          builder: (context, snapshot) {
+            final services = snapshot.data ?? [];
+            final loading = snapshot.connectionState == ConnectionState.waiting;
+
+            return ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              children: [
+                FadeInDown(
+                  duration: const Duration(milliseconds: 600),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'How can we help\nyou today?',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: AppConfig.secondaryColor,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Book trusted experts for your home needs.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
                   ),
-                  itemBuilder: (context, index) {
-                    final service = _services[index];
-                    return _ServiceTile(
-                      title: service,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                BookingFormScreen(serviceName: service),
-                          ),
-                        );
-                      },
-                    );
-                  },
                 ),
-              const SizedBox(height: 22),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const StatusUpdateScreen(),
+                const SizedBox(height: 30),
+                if (loading)
+                  const Center(child: Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator()))
+                else if (services.isEmpty)
+                  Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.search_off_rounded, size: 60, color: Colors.grey.shade400),
+                        const SizedBox(height: 16),
+                        const Text('No services found. Admin is updating soon!'),
+                      ],
                     ),
-                  );
-                },
-                icon: const Icon(Icons.receipt_long),
-                label: const Text('Ask for booking status'),
-              ),
-            ],
-          ),
+                  )
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: services.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: 1.1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final service = services[index];
+                      return FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: Duration(milliseconds: 100 * index),
+                        child: _ServiceTile(
+                          title: service,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BookingFormScreen(serviceName: service),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                const SizedBox(height: 40),
+                FadeInUp(
+                  duration: const Duration(milliseconds: 600),
+                  delay: const Duration(milliseconds: 400),
+                  child: _TrackBookingCard(),
+                ),
+                const SizedBox(height: 20),
+              ],
+            );
+          },
         ),
       ),
     );
   }
+}
 
-  Future<void> _loadServices() async {
-    final services = await _repository.loadServices();
-    if (!mounted) return;
-    setState(() {
-      _services = services;
-      _loading = false;
-    });
-  }
-
-  Future<void> _openOwnerManager() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const OwnerServiceManagerScreen()),
+class _TrackBookingCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppConfig.secondaryColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Track Your Booking',
+                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text('Check status on WhatsApp', style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
+              ],
+            ),
+          ),
+          IconButton.filled(
+            style: IconButton.styleFrom(backgroundColor: AppConfig.primaryColor, padding: const EdgeInsets.all(12)),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StatusUpdateScreen())),
+            icon: const Icon(Icons.arrow_forward_ios_rounded, color: AppConfig.secondaryColor, size: 20),
+          ),
+        ],
+      ),
     );
-    await _loadServices();
   }
 }
 
 class _ServiceTile extends StatelessWidget {
-  const _ServiceTile({
-    required this.title,
-    required this.onTap,
-  });
-
+  const _ServiceTile({required this.title, required this.onTap});
   final String title;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final parts = title.split(' ');
+    final hasEmoji = parts.isNotEmpty && parts[0].length <= 2;
+    final emoji = hasEmoji ? parts[0] : '🛠️';
+    final name = hasEmoji ? parts.sublist(1).join(' ') : title;
+
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(20),
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade100),
           ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF101820),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: AppConfig.primaryColor.withOpacity(0.15), shape: BoxShape.circle),
+                child: Text(emoji, style: const TextStyle(fontSize: 24)),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(
+                name,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppConfig.secondaryColor),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),
